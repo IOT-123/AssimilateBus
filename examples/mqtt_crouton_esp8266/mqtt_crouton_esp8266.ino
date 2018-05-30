@@ -17,8 +17,8 @@ PubSubClient _client(_esp_client);
 #define _mqtt_pub_topic		"outbox"	
 #define _mqtt_sub_topic		"inbox"	
 
-char *_mqtt_device_name = "ash_mezz_A_1";	                            // CHANGE THIS
-char *_mqtt_device_description = "ASHMORE QLD AUST, MEZZANINE, #A1";	// CHANGE THIS
+char *_mqtt_device_name = "YOUR UNIQUE ID HERE";	                            // CHANGE THIS
+char *_mqtt_device_description = "DESCRIPTION FOR CROUTON";	// CHANGE THIS
 char _viz_color[8] = "#4D90FE";
 
 bool _sent_device_info = false;
