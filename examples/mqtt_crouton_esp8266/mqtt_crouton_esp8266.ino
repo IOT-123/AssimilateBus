@@ -9,17 +9,33 @@ VizJson _viz_json;
 WiFiClient _esp_client;
 PubSubClient _client(_esp_client);
 
+/*
+* VALUES TO UPDATE ON SPIFFS VIA SERIAL INPUT:
+*	INDIVIDUAL PROPERTY NAME BASED ON ID / NAME COMBINATIONS
+*	VIZ DEVICE NAME
+*	VIZ DEVICE DESCRIPTION
+*	VIZ COLOR
+*	MQTT BROKER
+*	MQTT USER
+*	MQTT PWD
+*	WIFI SSID
+*	WIFI PWD
+*/
 
-#define _wifi_ssid			""							                // CHANGE THIS
-#define _wifi_password		""								            // CHANGE THIS
-#define _mqtt_broker		"test.mosquitto.org"
+//#define _wifi_ssid			"G6_3691"							// CHANGE THIS
+//#define _wifi_password		"29622962"								// CHANGE THIS
+#define _wifi_ssid			"Corelines_2"							// CHANGE THIS
+#define _wifi_password		"fgj284ga"								// CHANGE THIS
+#define _mqtt_broker		"test.mosquitto.org"//broker.shiftr.io"
 #define _mqtt_port			1883
 #define _mqtt_pub_topic		"outbox"	
 #define _mqtt_sub_topic		"inbox"	
 
-char *_mqtt_device_name = "ash_mezz_A_1";	                            // CHANGE THIS
+char *_mqtt_device_name = "ash_mezz_A_1";	// CHANGE THIS
 char *_mqtt_device_description = "ASHMORE QLD AUST, MEZZANINE, #A1";	// CHANGE THIS
 char _viz_color[8] = "#4D90FE";
+char *_mqtt_username = "";	// CHANGE THIS IF USING CREDENTIALS
+char *_mqtt_password = "";	// CHANGE THIS IF USING CREDENTIALS
 
 bool _sent_device_info = false;
 bool _in_config_mode = false;
@@ -83,14 +99,10 @@ void on_bus_received(char name[16], char value[16], byte address, Role role, Pro
 	if (!_sent_device_info)
 	{
 		// get the nv pairs until send of deviceInfo
-//Serial.println(_sensor_value_index);
-//Serial.println(name);
 		_sensor_details[_sensor_value_index].address = address;
 		strcpy(_sensor_details[_sensor_value_index].name, name);
-		//Serial.println(_sensor_details[_sensor_value_index].name);
 		strcpy(_sensor_details[_sensor_value_index].value, value);
 		_sensor_details[_sensor_value_index].role = role;
-		//Serial.println(_sensor_details[_sensor_value_index].role);
 		memcpy((void *)&_sensor_details[_sensor_value_index].prop_vizs, (void *)&prop_vizs, sizeof(prop_vizs));
 		_sensor_value_index++;
 		return;
@@ -240,11 +252,21 @@ void mqtt_create_subscriptions()
 void mqtt_reconnect() {
 	Serial.println();
 	Serial.println("mqtt_reconnect START");
+	char lwt_topic[127];
+	sprintf(lwt_topic, "/%s/%s/%s", _mqtt_pub_topic, _mqtt_device_name, "lwt");
+	Serial.println(lwt_topic);
 	while (!_client.connected()) {
 		Serial.print("Attempting MQTT connection...");
-		if (_client.connect(_mqtt_device_name)) {// ToDo: has a un/pw overload + lwt
+		bool connect_success;
+		if ((strcmp(_mqtt_username, "") == 0))// if not credentials
+		{
+			connect_success = _client.connect(_mqtt_device_name, lwt_topic, 0, false, "anything for last will and testament");
+		}else // if credentials
+		{
+			connect_success = _client.connect(_mqtt_device_name, _mqtt_username, _mqtt_password, lwt_topic, 0, false, "anything for last will and testament");
+		}
+		if (connect_success) {
 			Serial.println("connected");
-			//_client.setCallback(mqtt_callback);
 			mqtt_create_subscriptions();
 		} else {
 			Serial.print("failed, rc=");
