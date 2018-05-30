@@ -9,30 +9,17 @@ VizJson _viz_json;
 WiFiClient _esp_client;
 PubSubClient _client(_esp_client);
 
-/*
-* VALUES TO UPDATE ON SPIFFS VIA SERIAL INPUT:
-*	INDIVIDUAL PROPERTY NAME BASED ON ID / NAME COMBINATIONS
-*	VIZ DEVICE NAME
-*	VIZ DEVICE DESCRIPTION
-*	VIZ COLOR
-*	MQTT BROKER
-*	MQTT USER
-*	MQTT PWD
-*	WIFI SSID
-*	WIFI PWD
-*/
 
-//#define _wifi_ssid			"G6_3691"							// CHANGE THIS
-//#define _wifi_password		"29622962"								// CHANGE THIS
-#define _wifi_ssid			"Corelines_2"							// CHANGE THIS
-#define _wifi_password		"fgj284ga"								// CHANGE THIS
-#define _mqtt_broker		"test.mosquitto.org"//broker.shiftr.io"
+#define _wifi_ssid			"YOUR SSID"							// CHANGE THIS
+#define _wifi_password		"YOUR PWD"								// CHANGE THIS
+#define _mqtt_broker		"test.mosquitto.org"
 #define _mqtt_port			1883
 #define _mqtt_pub_topic		"outbox"	
 #define _mqtt_sub_topic		"inbox"	
 
-char *_mqtt_device_name = "ash_mezz_A_1";	// CHANGE THIS
-char *_mqtt_device_description = "ASHMORE QLD AUST, MEZZANINE, #A1";	// CHANGE THIS
+
+char *_mqtt_device_name = "YOUR UNIQUE ID HERE";	                            // CHANGE THIS
+char *_mqtt_device_description = "DESCRIPTION FOR CROUTON";	// CHANGE THIS
 char _viz_color[8] = "#4D90FE";
 char *_mqtt_username = "";	// CHANGE THIS IF USING CREDENTIALS
 char *_mqtt_password = "";	// CHANGE THIS IF USING CREDENTIALS
