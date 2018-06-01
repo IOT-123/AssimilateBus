@@ -29,6 +29,9 @@ public:
 		VIZ_UNITS,
 		VIZ_TOTAL,
 		VIZ_VALUES,
+		VIZ_IS_SERIES,
+		VIZ_HIGH,
+		VIZ_LOW,
 		NO_INTEREST
 	};
 

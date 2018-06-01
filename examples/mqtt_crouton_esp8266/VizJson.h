@@ -16,9 +16,12 @@ public:
 	VizJson();
 	String build_device_info(NameValuePropViz *_sensor_details, int sensor_count, char *mqtt_device_name, char *mqtt_device_description, char *viz_color);
 	String str_replace(String name, String search, String relacement);
+  String format_update_json(char *card_type, char *label, char *value);
+  const String POSTFIX_SERIES = "_series";
 private:
 	char* get_viz_card_type(char *str);
 	char* bool_str_or_default(char str[16]);
+  bool is_numeric(char *str);
 };
 
 #endif

@@ -39,15 +39,15 @@ void AssimilateBus::get_metadata()
 					switch (segment)
 					{
 					case 0:
-//Serial.print("[0]");
-//Serial.println(packet);
+Serial.print("[0]");
+Serial.println(packet);
 						// find if property of interest and tag
 						i2cName = AssimilateBus::get_meta_of_interest(packet);
 						break;
 					case 1:
 						// set in property of interest
-//Serial.print("[1]");
-//Serial.println(packet);
+Serial.print("[1]");
+Serial.println(packet);
 						AssimilateBus::set_meta_of_interest(_assimSlaves[index], i2cName, packet);
 						break;
 					case 2:
@@ -112,7 +112,7 @@ void AssimilateBus::get_sensors(NameValueCallback nvCallback, SlavesProcessedCal
 					break;
 				case 2:
 					// bubble up the name / value pairs
-					nvCallback(strlwr(name), value, _assimSlaves[index].address, _assimSlaves[index].role, _assimSlaves[index].prop_vizs[property_index]);
+					nvCallback(name, value, _assimSlaves[index].address, _assimSlaves[index].role, _assimSlaves[index].prop_vizs[property_index]);
 					property_index++;
 					// check if last metadata
 					if (int(packet[0]) != 49) {// 0 on last property
@@ -211,6 +211,18 @@ AssimilateBus::PropertyOfInterest AssimilateBus::get_meta_of_interest(char packe
 	{
 		return AssimilateBus::VIZ_VALUES;
 	}
+	if (str.equals("VIZ_IS_SERIES"))
+	{
+		return AssimilateBus::VIZ_IS_SERIES;
+	}
+	if (str.equals("VIZ_HIGH"))
+	{
+		return AssimilateBus::VIZ_HIGH;
+	}
+	if (str.equals("VIZ_LOW"))
+	{
+		return AssimilateBus::VIZ_LOW;
+	}
 	return AssimilateBus::NO_INTEREST;
 }
 
@@ -282,6 +294,12 @@ void AssimilateBus::set_meta_of_interest(AssimilateBus::Slave &slave, Assimilate
 		value = strtok(NULL, ":|");
 		slave.prop_vizs[idx].total = atoi(value);
 		break;
+	case AssimilateBus::VIZ_UNITS: // idx:value
+		// break up idx, value
+		idx = atoi(strtok(str, ":|"));
+		value = strtok(NULL, ":|");
+		strcpy(slave.prop_vizs[idx].units, value);
+		break;
 	case AssimilateBus::VIZ_VALUES: //"0:value|0" idx:name|value
 									// break up idx, name, value
 		idx = atoi(strtok(str, ":|"));
@@ -299,6 +317,23 @@ void AssimilateBus::set_meta_of_interest(AssimilateBus::Slave &slave, Assimilate
 			strcpy(slave.prop_vizs[idx].values[2].name, name);
 			strcpy(slave.prop_vizs[idx].values[2].value, value);
 		}
+		break;
+	case AssimilateBus::VIZ_IS_SERIES: // "2:true"  idx:value JUST BEING DEFINED IS ENOUGH
+		// break up idx, value
+		idx = atoi(strtok(str, ":|"));
+		slave.prop_vizs[idx].is_series = true;
+		break;
+	case AssimilateBus::VIZ_HIGH: // idx:value
+		// break up idx, value
+		idx = atoi(strtok(str, ":"));
+		value = strtok(NULL, ":");
+		slave.prop_vizs[idx].high = atoi(value);
+		break;
+	case AssimilateBus::VIZ_LOW: // idx:value
+		// break up idx, value
+		idx = atoi(strtok(str, ":"));
+		value = strtok(NULL, ":");
+		slave.prop_vizs[idx].low = atoi(value);
 		break;
 	default:
 		// got nothin for ya

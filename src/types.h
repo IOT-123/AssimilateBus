@@ -20,6 +20,8 @@ struct PropViz  // property visualisation definitions
 	int max;
 	int total;
 	bool is_series;  // whether it gets plotted as a chart
+	int high;
+	int low;
 };
 
 struct NameValuePropViz
