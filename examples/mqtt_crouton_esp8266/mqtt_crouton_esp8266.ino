@@ -21,30 +21,17 @@ const int NTP_PACKET_SIZE = 48;                             // NTP time is in th
 byte _packet_buffer[NTP_PACKET_SIZE];                       //buffer to hold incoming & outgoing packets
 long _time_substitute = 0;
 
-/*
-* VALUES TO UPDATE ON SPIFFS VIA SERIAL INPUT:
-*	INDIVIDUAL PROPERTY NAME BASED ON ID / NAME COMBINATIONS
-*	VIZ DEVICE NAME
-*	VIZ DEVICE DESCRIPTION
-*	VIZ COLOR
-*	MQTT BROKER
-*	MQTT USER
-*	MQTT PWD
-*	WIFI SSID
-*	WIFI PWD
-*  TIMEZONE
-*/
 
 
-#define _wifi_ssid			"Corelines_2"							// CHANGE THIS
-#define _wifi_password		"fgj284ga"								// CHANGE THIS
+#define _wifi_ssid			""							// CHANGE THIS
+#define _wifi_password		""								// CHANGE THIS
 #define _mqtt_broker		"test.mosquitto.org"//broker.shiftr.io"
 #define _mqtt_port			1883
 #define _mqtt_pub_topic		"outbox"	
 #define _mqtt_sub_topic		"inbox"	
 
-char *_mqtt_device_name = "ash_mezz_A_1";	// CHANGE THIS
-char *_mqtt_device_description = "ASHMORE QLD AUST, MEZZANINE, #A1";	// CHANGE THIS
+char *_mqtt_device_name = "";	// CHANGE THIS
+char *_mqtt_device_description = "";	// CHANGE THIS
 char _viz_color[8] = "#4D90FE";
 char *_mqtt_username = "";  // CHANGE THIS IF USING CREDENTIALS
 char *_mqtt_password = "";  // CHANGE THIS IF USING CREDENTIALS
