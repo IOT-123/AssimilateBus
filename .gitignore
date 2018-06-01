@@ -41,3 +41,4 @@ examples/mqtt_crouton_esp8266/Release/board.buildinfo
 examples/mqtt_crouton_esp8266/__vm/Upload.vmps.xml
 examples/mqtt_crouton_esp8266/__vm/Configuration.Release.vmps.xml
 examples/mqtt_crouton_esp8266/__vm/Compile.vmps.xml
+.vscode/settings.json

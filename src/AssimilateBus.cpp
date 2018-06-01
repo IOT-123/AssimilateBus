@@ -215,6 +215,10 @@ AssimilateBus::PropertyOfInterest AssimilateBus::get_meta_of_interest(char packe
 	{
 		return AssimilateBus::VIZ_IS_SERIES;
 	}
+	if (str.equals("VIZ_M_SERIES"))// MULTI SERIES - MULTIPLE LINES ON LINE CHASRT
+	{
+		return AssimilateBus::VIZ_M_SERIES;
+	}
 	if (str.equals("VIZ_HIGH"))
 	{
 		return AssimilateBus::VIZ_HIGH;
@@ -223,14 +227,63 @@ AssimilateBus::PropertyOfInterest AssimilateBus::get_meta_of_interest(char packe
 	{
 		return AssimilateBus::VIZ_LOW;
 	}
+	if (str.equals("VIZ_TOTL_UNIT"))
+	{
+		return AssimilateBus::VIZ_TOTL_UNIT;
+	}
 	return AssimilateBus::NO_INTEREST;
 }
+
+void AssimilateBus::set_defaults_for_card_type(char *card_type, PropViz &prop_viz){
+Serial.println("set_defaults_for_card_type");
+	if (strcmp("toggle", card_type) == 0)
+	{
+Serial.println("set_defaults_for_card_type toggle");
+
+	}
+	if (strcmp("input", card_type) == 0)
+	{
+
+	}
+	if (strcmp("text", card_type) == 0)
+	{
+
+	}
+	if (strcmp("slider", card_type) == 0)
+	{
+
+	}
+	if (strcmp("button", card_type) == 0)
+	{
+
+	}
+	if (strcmp("chart-donut", card_type) == 0)
+	{
+
+		prop_viz.total = 100;
+		strcpy(prop_viz.units, "%");
+		strcpy(prop_viz.values[0].name, "labels");
+		strcpy(prop_viz.values[0].value, "[]");
+		strcpy(prop_viz.values[1].name, "series");
+		strcpy(prop_viz.values[1].value, "0");
+		return;
+	}
+	if (strcmp("chart-line", card_type) == 0)
+	{
+		prop_viz.max = 12;
+		prop_viz.low = 0;
+		prop_viz.high = 100;
+	}
+
+}
+
 
 void AssimilateBus::set_meta_of_interest(AssimilateBus::Slave &slave, AssimilateBus::PropertyOfInterest i2cName, char str[16])
 {
 	int idx = -1;
 	char *pair;
 	char *name;
+	char *units;
 	char *value;
 	switch (i2cName) {
 	case AssimilateBus::ASSIM_NAME:
@@ -246,6 +299,8 @@ void AssimilateBus::set_meta_of_interest(AssimilateBus::Slave &slave, Assimilate
 		idx = atoi(strtok(str, ":|"));
 		value = strtok(NULL, ":|");
 		strcpy(slave.prop_vizs[idx].card_type, value);
+		set_defaults_for_card_type(value, slave.prop_vizs[idx]);
+		set_defaults_for_card_type("chart-line", slave.prop_vizs[idx]);
 		break;
 	case AssimilateBus::VIZ_ICONS: // "0:0|lightbulb" idx:name|value
 		// break up idx, name, value
@@ -318,10 +373,11 @@ void AssimilateBus::set_meta_of_interest(AssimilateBus::Slave &slave, Assimilate
 			strcpy(slave.prop_vizs[idx].values[2].value, value);
 		}
 		break;
-	case AssimilateBus::VIZ_IS_SERIES: // "2:true"  idx:value JUST BEING DEFINED IS ENOUGH
+	case AssimilateBus::VIZ_IS_SERIES: // "2:true"  idx:value 
 		// break up idx, value
-		idx = atoi(strtok(str, ":|"));
-		slave.prop_vizs[idx].is_series = true;
+		idx = atoi(strtok(str, ":"));
+		value = strtok(NULL, ":");
+		slave.prop_vizs[idx].is_series = strcmp(value, "true")==0;
 		break;
 	case AssimilateBus::VIZ_HIGH: // idx:value
 		// break up idx, value
@@ -334,6 +390,13 @@ void AssimilateBus::set_meta_of_interest(AssimilateBus::Slave &slave, Assimilate
 		idx = atoi(strtok(str, ":"));
 		value = strtok(NULL, ":");
 		slave.prop_vizs[idx].low = atoi(value);
+		break;
+	case AssimilateBus::VIZ_TOTL_UNIT: // "0:100|%" idx:total|unit
+		// break up idx, total, unit
+		idx = atoi(strtok(str, ":|"));
+		slave.prop_vizs[idx].total = atoi(strtok(NULL, ":|"));
+		units = strtok(NULL, ":|");
+		strcpy(slave.prop_vizs[idx].units, units);
 		break;
 	default:
 		// got nothin for ya

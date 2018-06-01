@@ -21,9 +21,24 @@ const int NTP_PACKET_SIZE = 48;                             // NTP time is in th
 byte _packet_buffer[NTP_PACKET_SIZE];                       //buffer to hold incoming & outgoing packets
 long _time_substitute = 0;
 
-#define _wifi_ssid			""							// CHANGE THIS
-#define _wifi_password		""								// CHANGE THIS
-#define _mqtt_broker		"test.mosquitto.org"
+/*
+* VALUES TO UPDATE ON SPIFFS VIA SERIAL INPUT:
+*	INDIVIDUAL PROPERTY NAME BASED ON ID / NAME COMBINATIONS
+*	VIZ DEVICE NAME
+*	VIZ DEVICE DESCRIPTION
+*	VIZ COLOR
+*	MQTT BROKER
+*	MQTT USER
+*	MQTT PWD
+*	WIFI SSID
+*	WIFI PWD
+*  TIMEZONE
+*/
+
+
+#define _wifi_ssid			"Corelines_2"							// CHANGE THIS
+#define _wifi_password		"fgj284ga"								// CHANGE THIS
+#define _mqtt_broker		"test.mosquitto.org"//broker.shiftr.io"
 #define _mqtt_port			1883
 #define _mqtt_pub_topic		"outbox"	
 #define _mqtt_sub_topic		"inbox"	
@@ -186,10 +201,11 @@ void on_bus_received(char name[16], char value[16], byte address, Role role, Pro
     return;
   }
   String formatted_json = _viz_json.format_update_json(prop_vizs.card_type, "", value);
-  mqtt_publish(_mqtt_pub_topic, _mqtt_device_name, strlwr(name), formatted_json.c_str());
+  String endpoint_name = _viz_json.format_endpoint_name(name);
+  mqtt_publish(_mqtt_pub_topic, _mqtt_device_name, const_cast<char*>(endpoint_name.c_str()), formatted_json.c_str());
   if (prop_vizs.is_series){// as chart-line
     formatted_json = _viz_json.format_update_json("chart-line", get_time_stamp(), value);
-    String series_endpoint = String(strlwr(name)) + _viz_json.POSTFIX_SERIES;
+    String series_endpoint = endpoint_name + _viz_json.POSTFIX_SERIES;
     mqtt_publish(_mqtt_pub_topic, _mqtt_device_name, const_cast<char*>(series_endpoint.c_str()), formatted_json.c_str());
   }
 }

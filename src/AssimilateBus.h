@@ -30,8 +30,10 @@ public:
 		VIZ_TOTAL,
 		VIZ_VALUES,
 		VIZ_IS_SERIES,
+		VIZ_M_SERIES,
 		VIZ_HIGH,
 		VIZ_LOW,
+		VIZ_TOTL_UNIT,
 		NO_INTEREST
 	};
 
@@ -43,6 +45,7 @@ public:
 		int clock_stretch;
 		PropViz prop_vizs[5]; // a slave can have 5 published properties
 	};
+	
 	AssimilateBus();
 	void get_metadata();
 	void print_metadata_details();
@@ -55,6 +58,7 @@ private:
 	Slave _assimSlaves[10];
 	int _deviceCount = 0;
 	void scan_bus_for_slave_addresses();
+	void set_defaults_for_card_type(char *card_type, PropViz &prop_viz);
 	const int _sclPin = D1;
 	const int _sdaPin = D2;
 };

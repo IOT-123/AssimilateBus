@@ -20,6 +20,7 @@ struct PropViz  // property visualisation definitions
 	int max;
 	int total;
 	bool is_series;  // whether it gets plotted as a chart
+	bool is_multi_series;  // whether it gets plotted as a chart weith other values
 	int high;
 	int low;
 };
@@ -31,4 +32,10 @@ struct NameValuePropViz
 	char value[16];// val of property
 	Role role;
 	PropViz prop_vizs;// viz details for 1 property
+};
+
+struct MultiSeriesValue{
+	byte address;
+	NameValue values[5];
+	char *timestamp;	
 };

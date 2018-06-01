@@ -9,6 +9,18 @@ Released into the public domain.
 
 VizJson::VizJson(){}
 
+String VizJson::format_endpoint_name(char name[16]){
+    String endpoint_name = str_replace(String(name), " ", "_");
+    endpoint_name = str_replace(endpoint_name, "%", "PC");
+    endpoint_name = str_replace(endpoint_name, "(", "");
+    endpoint_name = str_replace(endpoint_name, ")", "");
+    endpoint_name = str_replace(endpoint_name, "/", "_");
+    endpoint_name = str_replace(endpoint_name, ",", "_");
+    endpoint_name = str_replace(endpoint_name, ".", "");
+    endpoint_name.toLowerCase();
+    return endpoint_name;
+}
+
 //called with each reboot
 String VizJson::build_device_info(NameValuePropViz *_sensor_details, int sensor_count, char *mqtt_device_name, char *mqtt_device_description, char *viz_color) {
 	Serial.println("build_device_info START");
@@ -39,13 +51,7 @@ String VizJson::build_device_info(NameValuePropViz *_sensor_details, int sensor_
       has_total = true;
       has_units = true;
     }
-		String json_name = str_replace(String(_sensor_details[i].name), " ", "_");
-		json_name = str_replace(json_name, "%", "PC");
-		json_name = str_replace(json_name, "(", "");
-		json_name = str_replace(json_name, ")", "");
-		json_name = str_replace(json_name, "/", "_");
-		json_name = str_replace(json_name, ",", "_");
-		json_name.toLowerCase();
+		String json_name = format_endpoint_name(_sensor_details[i].name);
     char* card_type = get_viz_card_type(_sensor_details[i].prop_vizs.card_type);
 
 
@@ -261,7 +267,7 @@ String VizJson::format_update_json(char *card_type, char *label, char *value){
 bool VizJson::is_numeric(char *str) {
   for (byte i = 0; str[i]; i++)
   {
-    if (!isDigit(str[i])) return false;
+    if (!isDigit(str[i]) && str[i] != '.') return false;
   }
   return true;
 }
