@@ -38,18 +38,18 @@ long _time_substitute = 0;
 
 #define _wifi_ssid			"Corelines_2"							// CHANGE THIS
 #define _wifi_password		"fgj284ga"								// CHANGE THIS
-#define _mqtt_broker		"test.mosquitto.org"//broker.shiftr.io"
+#define _mqtt_broker		"test.mosquitto.org"
 #define _mqtt_port			1883
 #define _mqtt_pub_topic		"outbox"	
 #define _mqtt_sub_topic		"inbox"	
 
-char *_mqtt_device_name = "ash_mezz_A_1";	// CHANGE THIS
+char *_mqtt_device_name = "ash_mezz_A1";	// CHANGE THIS
 char *_mqtt_device_description = "ASHMORE QLD AUST, MEZZANINE, #A1";	// CHANGE THIS
 char _viz_color[8] = "#4D90FE";
 char *_mqtt_username = "";  // CHANGE THIS IF USING CREDENTIALS
 char *_mqtt_password = "";  // CHANGE THIS IF USING CREDENTIALS
 
-bool _sent_device_info = false;
+volatile bool _sent_device_info = false;
 bool _in_config_mode = false;
 NameValuePropViz _sensor_details[20];
 byte _sensor_value_index = 0;
@@ -118,18 +118,18 @@ time_t get_ntp_time()
 {
   IPAddress ntp_server_ip; // NTP server's ip address
   while (Udp.parsePacket() > 0) ; // discard any previously received packets
-  Serial.println("Transmit NTP Request");
+//Serial.println("Transmit NTP Request");
   // get a random server from the pool
   WiFi.hostByName(_ntp_server_name, ntp_server_ip);
-  Serial.print(_ntp_server_name);
-  Serial.print(": ");
-  Serial.println(ntp_server_ip);
+//Serial.print(_ntp_server_name);
+//Serial.print(": ");
+//Serial.println(ntp_server_ip);
   send_ntp_packet(ntp_server_ip);
   uint32_t beginWait = millis();
   while (millis() - beginWait < 1500) {
     int size = Udp.parsePacket();
     if (size >= NTP_PACKET_SIZE) {
-      Serial.println("Receive NTP Response");
+//Serial.println("Receive NTP Response");
       Udp.read(_packet_buffer, NTP_PACKET_SIZE);  // read packet into the buffer
       unsigned long secsSince1900;
       // convert four bytes starting at location 40 to a long integer
@@ -188,7 +188,12 @@ char *get_time_stamp(){
 //---------------------------------I2C
 
 void on_bus_received(char name[16], char value[16], byte address, Role role, PropViz prop_vizs){
-  Serial.println("on_bus_received");
+Serial.println("on_bus_received");
+//Serial.println(name);
+//Serial.println(value);
+//Serial.print("_sent_device_info ");
+//Serial.println(_sent_device_info);
+
   if (!_sent_device_info)
   {
     // get the nv pairs until send of deviceInfo
@@ -198,6 +203,15 @@ void on_bus_received(char name[16], char value[16], byte address, Role role, Pro
     _sensor_details[_sensor_value_index].role = role;
     memcpy((void *)&_sensor_details[_sensor_value_index].prop_vizs, (void *)&prop_vizs, sizeof(prop_vizs));
     _sensor_value_index++;
+    return;
+  }
+  // values not to publish
+  if (strcmp(value, "HEATING")==0){
+    Serial.println("NOT PUBLISHING");
+    return;
+  }
+  if (strcmp(value, "CALIBRATING")==0){
+    Serial.println("NOT PUBLISHING");    
     return;
   }
   String formatted_json = _viz_json.format_update_json(prop_vizs.card_type, "", value);
@@ -212,16 +226,18 @@ void on_bus_received(char name[16], char value[16], byte address, Role role, Pro
 
 void on_bus_complete()
 {
-  //Serial.println("onBusComplete");
+  Serial.println("onBusComplete");
   if (_sent_device_info)
   {
+//Serial.println("_sent_device_info");
     return;
   }
+//Serial.println("onBusComplete !_sent_device_info");
   String payload = _viz_json.build_device_info(_sensor_details, _sensor_value_index, _mqtt_device_name, _mqtt_device_description, _viz_color);
-  Serial.println();
-  Serial.println("SENDING");
+//Serial.println();
+//Serial.println("SENDING");
   mqtt_publish(_mqtt_pub_topic, _mqtt_device_name, "deviceInfo", payload.c_str());
-  Serial.println("SENT");
+//Serial.println("SENT");
   // after sending the deviceInfo request the sensors again - happens first time only
   _sent_device_info = true;
   _assimilate_bus.get_sensors(on_bus_received, on_bus_complete);
@@ -240,9 +256,10 @@ void mqtt_loop()
 }
 
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
-  Serial.println("mqtt_callback");
+Serial.println("mqtt_callback");
   char payload_chars[50];
-  Serial.println(topic);
+  String slave_payload;
+//Serial.println(topic);
   for (int i = 0; i < length; i++) {
     payload_chars[i] = (char)payload[i];
   }
@@ -264,24 +281,25 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   char card_type[16];
   for (int i = 0; i < sizeof(_sensor_details); i++)
   {
-    if (strcmp(property, _sensor_details[i].name) == 0)
+    String formatted_property = _viz_json.format_endpoint_name(_sensor_details[i].name);
+    if (strcmp(property, formatted_property.c_str()) == 0)
     {
       address = _sensor_details[i].address;
       strcpy(card_type, _sensor_details[i].prop_vizs.card_type);
       break;
     }
   }
-  char *param;
-  Serial.println(card_type);
+//  Serial.println(card_type);
   if (strcmp("toggle", card_type) == 0)
   {
-    if (root["value"])
-    {
-      _assimilate_bus.send_to_actor(address, 2, "1");
-    }else
-    {
-      _assimilate_bus.send_to_actor(address, 2, "0");
+    int8_t topic_index = mqtt_get_topic_index(property);
+    if (topic_index == -1){
+        slave_payload = root["value"] ? "1" : "0";
+    }else{ // indexed properties like 2CH RELAY
+        slave_payload = root["value"] ? "1" : "0";      
+        slave_payload = String(topic_index) + ":" + slave_payload;
     }
+    _assimilate_bus.send_to_actor(address, 2, slave_payload.c_str());          
     return;
   }
   if (strcmp("input", card_type) == 0)
@@ -318,7 +336,16 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   //{
   //  //na
   //}
+}
 
+int8_t mqtt_get_topic_index(char* topic){
+//  Serial.println("mqtt_get_topic_index");
+    char *property = strtok(topic, "[]");
+    char *index = strtok(NULL, "[]");
+    if (index == NULL){
+      return -1;
+    }
+    return atoi(index);
 }
 
 void mqtt_subscribe(char *root_topic, char *deviceName, char *endpoint)
@@ -342,7 +369,8 @@ void mqtt_create_subscriptions()
     if (strcmp("", _sensor_details[i].name) != 0){ // if assigned
       if (_sensor_details[i].role == ACTOR) // only actors
       {
-        mqtt_subscribe(_mqtt_sub_topic, _mqtt_device_name, _sensor_details[i].name);
+        String endpoint_name = _viz_json.format_endpoint_name(_sensor_details[i].name);
+        mqtt_subscribe(_mqtt_sub_topic, _mqtt_device_name, const_cast<char*>(endpoint_name.c_str()));
       }
     }
   }
@@ -353,13 +381,14 @@ void mqtt_reconnect() {
   Serial.println("mqtt_reconnect START");
   char lwt_topic[127];
   sprintf(lwt_topic, "/%s/%s/%s", _mqtt_pub_topic, _mqtt_device_name, "lwt");
-  Serial.println(lwt_topic);
+//Serial.println(lwt_topic);
   while (!_client.connected()) {
     Serial.print("Attempting MQTT connection...");
     bool connect_success;
     if ((strcmp(_mqtt_username, "") == 0))// if not credentials
     {
       connect_success = _client.connect(_mqtt_device_name, lwt_topic, 0, false, "anything for last will and testament");
+//      connect_success = _client.connect(_mqtt_device_name);
     }else // if credentials
     {
       connect_success = _client.connect(_mqtt_device_name, _mqtt_username, _mqtt_password, lwt_topic, 0, false, "anything for last will and testament");
@@ -374,7 +403,7 @@ void mqtt_reconnect() {
       delay(5000);
     }
   }
-  Serial.println("mqtt_reconnect END");
+//Serial.println("mqtt_reconnect END");
 }
 
 void mqtt_connect(const char* wifi_ssid, const char* wifi_password, const char* mqtt_broker, int mqtt_port)
@@ -396,6 +425,9 @@ void mqtt_connect(const char* wifi_ssid, const char* wifi_password, const char* 
 
 void mqtt_publish(char *root_topic, char *deviceName, char *endpoint, const char *payload)
 {
+  if (strcmp(payload, "")==0){
+    return;
+  }
   Serial.println("mqtt_publish");
   char topic[127];
   sprintf(topic, "/%s/%s/%s", root_topic, deviceName, endpoint);
