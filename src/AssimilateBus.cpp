@@ -100,26 +100,37 @@ void AssimilateBus::get_sensors(NameValueCallback nvCallback, SlavesProcessedCal
 					packet[writeIndex] = intOfChar > -1 && intOfChar < 255 ? c : 0x00;// replace invalid chars with zero char      
 					writeIndex++;
 				}// end while wire.available
+// Serial.println("get_sensors");
+// Serial.println(segment);
+// Serial.println(packet);
 				switch (segment)
 				{
-				case 0:
-					// set property name
-					strcpy(name, packet);
-					break;
-				case 1:
-					// set property value
-					strcpy(value, packet);
-					break;
-				case 2:
-					// bubble up the name / value pairs
-					nvCallback(name, value, _assimSlaves[index].address, _assimSlaves[index].role, _assimSlaves[index].prop_vizs[property_index]);
-					property_index++;
-					// check if last metadata
-					if (int(packet[0]) != 49) {// 0 on last property
-						i2cNodeProcessed = true;
+					case 0:
+						// set property name
+						strcpy(name, packet);
 						break;
-					}
-				default:;
+					case 1:
+						// set property value
+						strcpy(value, packet);
+						break;
+					case 2:
+						// if "prepare" msg goto next - will only happen on loop interval
+						// char compare_str[7];
+						// strncpy(compare_str, name, 7);
+						// if (strcmp("prepare", strlwr(compare_str)) == 0){
+						// 	Serial.println("-----------PREPARE ONLY!");
+						// 	i2cNodeProcessed = true;
+						// 	break;
+						// }
+						// bubble up the name / value pairs
+						nvCallback(name, value, _assimSlaves[index].address, _assimSlaves[index].role, _assimSlaves[index].prop_vizs[property_index]);
+						property_index++;
+						// check if last metadata
+						if (int(packet[0]) != 49) {// 0 on last property
+							i2cNodeProcessed = true;
+							break;
+						}
+					default:;
 				}
 			}// end for segment
 			if (i2cNodeProcessed) { // break out of true loop if last metadata
@@ -235,10 +246,10 @@ AssimilateBus::PropertyOfInterest AssimilateBus::get_meta_of_interest(char packe
 }
 
 void AssimilateBus::set_defaults_for_card_type(char *card_type, PropViz &prop_viz){
-Serial.println("set_defaults_for_card_type");
+//Serial.println("set_defaults_for_card_type");
 	if (strcmp("toggle", card_type) == 0)
 	{
-Serial.println("set_defaults_for_card_type toggle");
+//Serial.println("set_defaults_for_card_type toggle");
 
 	}
 	if (strcmp("input", card_type) == 0)
