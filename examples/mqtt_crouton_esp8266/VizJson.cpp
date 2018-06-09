@@ -33,7 +33,7 @@ String VizJson::build_device_info(NameValuePropViz *_sensor_details, int sensor_
 	{
 		bool has_labels, has_icons, has_values, is_toggle, is_donut, has_total, has_units;
 		if (strcmp("toggle", _sensor_details[i].prop_vizs.card_type) == 0)
-		{
+		{    
 			has_labels = true;
 			has_icons = true;
 			has_values = true;
@@ -42,7 +42,7 @@ String VizJson::build_device_info(NameValuePropViz *_sensor_details, int sensor_
       has_total = false;
       has_units = false;
 		}else if (strcmp("chart-donut", _sensor_details[i].prop_vizs.card_type) == 0)
-    {
+    { 
       has_labels = false;
       has_icons = false;
       is_toggle = false;
@@ -50,16 +50,18 @@ String VizJson::build_device_info(NameValuePropViz *_sensor_details, int sensor_
       is_donut = true;
       has_total = true;
       has_units = true;
+    }else if (strcmp("text", _sensor_details[i].prop_vizs.card_type) == 0)
+    {   
+      has_labels = false;
+      has_icons = false;
+      is_toggle = false;
+      is_donut = false;
+      has_values = true;
+      has_total = false;
+      has_units = true;
     }
 		String json_name = format_endpoint_name(_sensor_details[i].name);
     char* card_type = get_viz_card_type(_sensor_details[i].prop_vizs.card_type);
-
-
-
-
-
-
-    
     if (strcmp(card_type, "unsupported") != 0){
       JsonObject& endpoint = deviceInfo_endPoints.createNestedObject(json_name); // THIS NEEDS TO BE STRIPPED
       endpoint["title"] = _sensor_details[i].name;
@@ -95,6 +97,8 @@ String VizJson::build_device_info(NameValuePropViz *_sensor_details, int sensor_
               }else{
                 endpoint_values[_sensor_details[i].prop_vizs.values[j].name] = String(_sensor_details[i].prop_vizs.values[j].value).toInt();
               }
+            }else{
+                endpoint_values[_sensor_details[i].prop_vizs.values[j].name] = _sensor_details[i].prop_vizs.values[j].value;
             }
           }
         }

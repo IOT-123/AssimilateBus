@@ -51,7 +51,7 @@ public:
 	void print_metadata_details();
 	void get_sensors(NameValueCallback nvCallback, SlavesProcessedCallback spCallback);
 	PropertyOfInterest get_meta_of_interest(char packet[16]);
-	void set_meta_of_interest(Slave &slave, PropertyOfInterest i2cName, char str[16]);
+	void set_meta_of_interest(Slave &slave, PropertyOfInterest i2cName, char value[16]);
 	void send_to_actor(byte address, byte code, const char *param);
 
 private:
@@ -59,6 +59,7 @@ private:
 	int _deviceCount = 0;
 	void scan_bus_for_slave_addresses();
 	void set_defaults_for_card_type(char *card_type, PropViz &prop_viz);
+	int I2C_ClearBus();
 	const int _sclPin = D1;
 	const int _sdaPin = D2;
 };

@@ -2,7 +2,7 @@
 #include <AssimilateBus.h>
 
 #include <ESP8266WiFi.h>
-#include <PubSubClient.h> // set MQTT_MAX_PACKET_SIZE to ~600 (or your needs for deviceInfo json)
+#include <PubSubClient.h> // set MQTT_MAX_PACKET_SIZE to ~2000 (or your needs for deviceInfo json)
 #include <TimeLib.h>
 #include <WiFiUdp.h>
 
@@ -30,7 +30,7 @@ long _time_substitute = 0;
 #define _mqtt_pub_topic		"outbox"	
 #define _mqtt_sub_topic		"inbox"	
 
-char *_mqtt_device_name = "";	// CHANGE THIS
+char *_mqtt_device_name = "ash_mezz_A1";	// CHANGE THIS
 char *_mqtt_device_description = "";	// CHANGE THIS
 char _viz_color[8] = "#4D90FE";
 char *_mqtt_username = "";  // CHANGE THIS IF USING CREDENTIALS
@@ -395,7 +395,7 @@ void mqtt_reconnect() {
 
 void mqtt_connect(const char* wifi_ssid, const char* wifi_password, const char* mqtt_broker, int mqtt_port)
 {
-  Serial.println();
+//Serial.println();
   Serial.println("mqtt_connect START");
   WiFi.mode(WIFI_STA);
   delay(10);
@@ -413,6 +413,9 @@ void mqtt_connect(const char* wifi_ssid, const char* wifi_password, const char* 
 void mqtt_publish(char *root_topic, char *deviceName, char *endpoint, const char *payload)
 {
   if (strcmp(payload, "")==0){
+    return;
+  }
+  if (strcmp(endpoint, "")==0){
     return;
   }
   Serial.println("mqtt_publish");
