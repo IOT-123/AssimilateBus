@@ -6,6 +6,8 @@ Released into the public domain.
 #include <Wire.h>
 #include <AssimilateBus.h>
 
+#define PIN_RESET D0
+
 AssimilateBus::Slave _defaultSlave = { 0, "SLAVE_DEFAULTS", ACTOR, 40000, {} };
 
 AssimilateBus::AssimilateBus()
@@ -22,6 +24,9 @@ AssimilateBus::AssimilateBus()
       Serial.println(F("SDA data line held low"));
     }
   } else { // bus clear
+      // soft hardware reset
+    pinMode(PIN_RESET, OUTPUT);
+    digitalWrite(PIN_RESET, HIGH);
     // re-enable Wire
 	Wire.begin(_sdaPin, _sclPin);
 	scan_bus_for_slave_addresses();
@@ -142,7 +147,7 @@ Serial.println(packet);
 							Serial.println("OUT OF SYNC");
 							Serial.println("RESTARTING");
 							i2cNodeProcessed = true;
-							ESP.restart();
+							digitalWrite(PIN_RESET, LOW); //ToDo: the slaves need to be rebooted
 							break;
 						}
 						AssimilateBus::set_meta_of_interest(_assimSlaves[index], i2cName, packet);

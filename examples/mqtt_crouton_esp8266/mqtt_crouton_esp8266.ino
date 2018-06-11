@@ -21,8 +21,6 @@ const int NTP_PACKET_SIZE = 48;                             // NTP time is in th
 byte _packet_buffer[NTP_PACKET_SIZE];                       //buffer to hold incoming & outgoing packets
 long _time_substitute = 0;
 
-
-
 #define _wifi_ssid			""							// CHANGE THIS
 #define _wifi_password		""								// CHANGE THIS
 #define _mqtt_broker		"test.mosquitto.org"
@@ -30,7 +28,7 @@ long _time_substitute = 0;
 #define _mqtt_pub_topic		"outbox"	
 #define _mqtt_sub_topic		"inbox"	
 
-char *_mqtt_device_name = "ash_mezz_A1";	// CHANGE THIS
+char *_mqtt_device_name = "";	// CHANGE THIS
 char *_mqtt_device_description = "";	// CHANGE THIS
 char _viz_color[8] = "#4D90FE";
 char *_mqtt_username = "";  // CHANGE THIS IF USING CREDENTIALS
