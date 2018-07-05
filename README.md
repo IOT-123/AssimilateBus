@@ -4,6 +4,10 @@ Arduino library for I2C communication from an ESP8266 master (this library) to a
 
 The metadata in the slaves should be ASSIM_VERSION 2, for the automatic Crouton configuration.
 
+BREAKING CHANGES DUE TO MEMORY CONSTRAINTS
+
+The examples compile as loaded but the later ones use local copies of the library.
+
 NOTE:
 press y for sha
 
@@ -17,3 +21,5 @@ https://www.instructables.com/id/IOT123-ASSIMILATE-SENSOR-HUB-ICOS10-CROUTON-RES
 https://github.com/IOT-123/AssimilateBus/tree/2dff4a266340362a9cb2c1491ef31ad2884c5d95
 
 https://github.com/IOT-123/AssimilateBus/archive/2dff4a266340362a9cb2c1491ef31ad2884c5d95.zip
+
+IOT123 - ASSIMILATE SENSOR HUB: ICOS10 CROUTON CUSTOMIZATION WEBSERVER
