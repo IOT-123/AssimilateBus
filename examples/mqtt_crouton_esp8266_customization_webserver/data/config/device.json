@@ -5,13 +5,13 @@
   "sensor_interval": 10000,
   "ntp_server_name": "us.pool.ntp.org",
   "time_zone": 10,
-  "wifi_ssid": "Corelines_2",
-  "wifi_key": "fgj284ga",
+  "wifi_ssid": "YOUR SSID",
+  "wifi_key": "YOUR KEY",
   "mqtt_broker": "test.mosquitto.org",
   "mqtt_username": "",
   "mqtt_password": "",
   "mqtt_port": 1883,
-  "mqtt_device_name": "ash_mezz_A3",
-  "mqtt_device_description": "Office at Ashmore, Mezzanine, Area A2",
+  "mqtt_device_name": "YOUR DEVICE NAME",
+  "mqtt_device_description": "YOUR DEVICE DESCRIPTION",
   "viz_color": "#4D90FE"
 }
