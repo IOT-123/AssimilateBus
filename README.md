@@ -6,7 +6,7 @@ The metadata in the slaves should be ASSIM_VERSION 2, for the automatic Crouton 
 
 BREAKING CHANGES DUE TO MEMORY CONSTRAINTS
 
-The examples compile as loaded but the later ones use local copies of the library.
+The examples compile as loaded, but the later ones use local copies of the library.
 
 NOTE:
 press y for sha
@@ -23,3 +23,9 @@ https://github.com/IOT-123/AssimilateBus/tree/2dff4a266340362a9cb2c1491ef31ad288
 https://github.com/IOT-123/AssimilateBus/archive/2dff4a266340362a9cb2c1491ef31ad2884c5d95.zip
 
 IOT123 - ASSIMILATE SENSOR HUB: ICOS10 CROUTON CUSTOMIZATION WEBSERVER
+
+https://www.instructables.com/id/IOT123-ASSIMILATE-SENSOR-HUB-ICOS10-CUSTOMIZATION-
+
+https://github.com/IOT-123/AssimilateBus/tree/618d8f9a289290e05b5106b725b504547e3f81c1
+
+https://github.com/IOT-123/AssimilateBus/archive/618d8f9a289290e05b5106b725b504547e3f81c1.zip
