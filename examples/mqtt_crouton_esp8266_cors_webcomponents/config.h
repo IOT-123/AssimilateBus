@@ -29,7 +29,7 @@ public:
 	void clear_metadata_dir();
 	void update_prop_dtos(PropertyDto dto_props[], byte sensor_count);
 	String read(const char* path);
-	String get_user_card(char* file_id);
+	String get_user_card(const char* file_id);
 private:
 };
 

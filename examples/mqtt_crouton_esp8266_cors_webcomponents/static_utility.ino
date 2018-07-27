@@ -62,3 +62,24 @@ bool get_json_is_series(byte slave_address, byte prop_index){
   }
   return slave_json_obj[String(prop_index)]["is_series"];
 }
+
+void str_replace(char *src, char *oldchars, char *newchars) { // utility string function
+	char *p = strstr(src, oldchars);
+	char buf[16];
+	do {
+		if (p) {
+			memset(buf, '\0', strlen(buf));
+			if (src == p) {
+				strcpy(buf, newchars);
+				strcat(buf, p + strlen(oldchars));
+			}
+			else {
+				strncpy(buf, src, strlen(src) - strlen(p));
+				strcat(buf, newchars);
+				strcat(buf, p + strlen(oldchars));
+			}
+			memset(src, '\0', strlen(src));
+			strcpy(src, buf);
+		}
+	} while (p && (p = strstr(src, oldchars)));
+}

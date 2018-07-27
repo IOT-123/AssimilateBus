@@ -40,6 +40,11 @@ void on_bus_received(byte slave_address, byte prop_index, Role role, char name[1
 		String series_endpoint = endpoint_name + _viz_json.POSTFIX_SERIES;
 		mqtt_publish(_mqtt_pub_topic, _runtime_device_data.mqtt_device_name, const_cast<char*>(series_endpoint.c_str()), formatted_json.c_str());
 	}
+	if (_dto_props[_dto_props_index].has_custom_card)
+	{
+		endpoint_name = "CC_" + endpoint_name;
+		mqtt_publish(_mqtt_pub_topic, _runtime_device_data.mqtt_device_name, const_cast<char*>(endpoint_name.c_str()), formatted_json.c_str());
+	}
 }
 
 void on_bus_complete(){

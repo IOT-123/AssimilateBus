@@ -1,5 +1,5 @@
 {
-  "device": {
+  "endpoint": {
     "device_name": "<mqtt_device_name>",
     "card-type": "assim-device",
     "ssid": "<wifi_ssid>",

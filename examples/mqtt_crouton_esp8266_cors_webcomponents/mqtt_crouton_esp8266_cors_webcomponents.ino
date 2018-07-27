@@ -70,7 +70,7 @@ bool check_fatal_error();
 bool get_json_card_type(byte slave_address, byte prop_index, char *card_type);
 bool get_struct_card_type(byte slave_address, byte prop_index, char *card_type);
 bool get_json_is_series(byte slave_address, byte prop_index);
-
+void str_replace(char *src, char *oldchars, char *newchars);
 
 //---------------------------------MAIN
 

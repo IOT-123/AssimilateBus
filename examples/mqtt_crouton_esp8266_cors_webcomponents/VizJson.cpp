@@ -41,12 +41,17 @@ String VizJson::build_device_info(PropertyDto *dto_props, int sensor_count, char
 	JsonObject& root = json_create_buffer_buffer.createObject();
 	JsonObject& deviceInfo = root.createNestedObject("deviceInfo");
 	JsonObject& deviceInfo_endPoints = deviceInfo.createNestedObject("endPoints");
-	addCustomEndpoint(deviceInfo_endPoints, "base", mqtt_device_name);
+	addCustomEndpoint(deviceInfo_endPoints, "device", "base", mqtt_device_name);
 	for (int i = 0; i < sensor_count; i++)
 	{
-		bool has_labels, has_icons, has_values, is_toggle, is_donut, has_total, has_units;
+		String endpoint_name = format_endpoint_name(dto_props[i].name);
 		String slave_address = String(dto_props[i].slave_address);
 		String prop_index = String(dto_props[i].prop_index);
+		if (addCustomEndpoint(deviceInfo_endPoints, endpoint_name, slave_address.c_str(), mqtt_device_name))
+		{
+			dto_props[i].has_custom_card = true;
+		}
+		bool has_labels, has_icons, has_values, is_toggle, is_donut, has_total, has_units;
 		JsonObject& slave_json_obj = _config.get_slave_meta_json_object(dto_props[i].slave_address);
 		JsonObject& prop_json_obj = slave_json_obj[prop_index];
 		String card_type_short = prop_json_obj["card_type"];
@@ -77,10 +82,9 @@ String VizJson::build_device_info(PropertyDto *dto_props, int sensor_count, char
 			has_total = false;
 			has_units = true;
 		}
-		String json_name = format_endpoint_name(dto_props[i].name);
 		char *card_type = get_viz_card_type(const_cast<char*>(card_type_short.c_str()));
 		if (strcmp(card_type, "unsupported") != 0) {
-			JsonObject& endpoint = deviceInfo_endPoints.createNestedObject(json_name);
+			JsonObject& endpoint = deviceInfo_endPoints.createNestedObject(endpoint_name);
 			endpoint["title"] = String(dto_props[i].user_prop_name);
 			endpoint["card-type"] = card_type;
 			if (has_labels) {
@@ -126,7 +130,7 @@ String VizJson::build_device_info(PropertyDto *dto_props, int sensor_count, char
 		}
 		bool is_series = prop_json_obj["is_series"];
 		if (is_series) {
-			JsonObject& series_endpoint = deviceInfo_endPoints.createNestedObject(json_name + POSTFIX_SERIES); // THIS NEEDS TO BE STRIPPED
+			JsonObject& series_endpoint = deviceInfo_endPoints.createNestedObject(endpoint_name + POSTFIX_SERIES); // THIS NEEDS TO BE STRIPPED
 			series_endpoint["title"] = dto_props[i].user_prop_name;
 			series_endpoint["card-type"] = "crouton-chart-line";
 			series_endpoint["max"] = prop_json_obj["max"].as<int>();
@@ -152,25 +156,18 @@ String VizJson::build_device_info(PropertyDto *dto_props, int sensor_count, char
 	return output;
 }
 
-void VizJson::addCustomEndpoint(JsonObject& deviceInfo_endPoints, char *file_id, char *mqtt_device_name)
+bool VizJson::addCustomEndpoint(JsonObject& deviceInfo_endPoints, String endpoint_name, const char *file_id, char *mqtt_device_name)
 {
-	Serial.println(F("addCustomEndpoint 1"));
 	String json = _config.get_user_card(file_id);
-	if (json == "") return;
-	Serial.println(F("addCustomEndpoint 2"));
-	//WiFi.SSID()
-	//WiFi.localIP().toString()
+	if (json == "") return false;
 	DynamicJsonBuffer jsonBuffer;
 	JsonObject& root = jsonBuffer.parseObject(json);
-	const char* key = get_json_key(root, 0);
-	char keyCopy[16];
-	strcpy(keyCopy, key);
 	String epJson = get_json_value(root, 0);
 	epJson.replace("<mqtt_device_name>", String(mqtt_device_name));
 	epJson.replace("<wifi_ssid>", WiFi.SSID());
 	epJson.replace("<local_ip>", WiFi.localIP().toString());
-	deviceInfo_endPoints[keyCopy] = RawJson(epJson);
-	Serial.println(F("addCustomEndpoint 3"));
+	deviceInfo_endPoints["CC_" + endpoint_name] = RawJson(epJson);
+	return true;
 }
 
 //not for the purist :)

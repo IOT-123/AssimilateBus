@@ -26,7 +26,7 @@ String Config::read(const char* path) {
 	return json;
 }
 
-String Config::get_user_card(char * file_id)
+String Config::get_user_card(const char * file_id)
 {
 	char path[31];
 	sprintf(path, FILE_CONFIG_USER_CARD, file_id);

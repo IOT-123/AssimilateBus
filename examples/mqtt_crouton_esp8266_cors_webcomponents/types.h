@@ -46,6 +46,7 @@ struct PropertyDto
 	char value[16];
 	Role role;
 	bool is_series;
+	bool has_custom_card;
 };
 
 //struct MultiSeriesValue{

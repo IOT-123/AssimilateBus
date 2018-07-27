@@ -1,6 +1,7 @@
 {
-  "grow_lights_wv": {
+  "endpoint": {
     "card-type": "assim-weekview",
+    "card-type-test": "<local_ip>/cors/assim-weekview.html",
     "title": "Planter Lights",
     "interval_mins": 15
   }
