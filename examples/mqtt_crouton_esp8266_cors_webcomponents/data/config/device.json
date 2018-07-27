@@ -1,0 +1,17 @@
+{
+  "www_auth_username": "",
+  "www_auth_password": "",
+  "www_auth_exclude_files": "",
+  "sensor_interval": 10000,
+  "ntp_server_name": "us.pool.ntp.org",
+  "time_zone": 10,
+  "wifi_ssid": "Corelines_2",
+  "wifi_key": "fgj284ga",
+  "mqtt_broker": "test.mosquitto.org",
+  "mqtt_username": "",
+  "mqtt_password": "",
+  "mqtt_port": 1883,
+  "mqtt_device_name": "ash_mezz_A3",
+  "mqtt_device_description": "Office at Ashmore, Mezzanine, Area A2",
+  "viz_color": "#4D90FE"
+}

@@ -1,0 +1,2 @@
+Add CORS friendly Headers
+When CMD an ACTOR get Properties to MQTT immediately just for that slave
