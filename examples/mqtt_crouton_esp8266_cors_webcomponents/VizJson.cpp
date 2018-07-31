@@ -36,22 +36,28 @@ byte VizJson::get_card_count(PropertyDto *dto_props, int sensor_count) {
 String VizJson::build_device_info(PropertyDto *dto_props, int sensor_count, char *mqtt_device_name, char *mqtt_device_description, char *viz_color) {
 	Serial.println(F("[DEVICEINFO BUILD] LOAD USER CUSTOMIZATIONS"));
 	byte card_count = get_card_count(dto_props, sensor_count);
-	int bufferSize = 250 + (card_count * 350);
-	DynamicJsonBuffer json_create_buffer_buffer(bufferSize);
+	DynamicJsonBuffer json_create_buffer_buffer; // buffer size not declared because custom card count not discovered yet
 	JsonObject& root = json_create_buffer_buffer.createObject();
-	JsonObject& deviceInfo = root.createNestedObject("deviceInfo");
-	JsonObject& deviceInfo_endPoints = deviceInfo.createNestedObject("endPoints");
-	addCustomEndpoint(deviceInfo_endPoints, "device", "base", mqtt_device_name);
+	JsonObject& device_info = root.createNestedObject("deviceInfo");
+	JsonObject& deviceInfo_endPoints = device_info.createNestedObject("endPoints");
+	const String baseEndpoint = read_custom_endpoint("base", mqtt_device_name);
+	if (baseEndpoint != "")
+	{
+		deviceInfo_endPoints["CC_device"] = RawJson(baseEndpoint);
+	}
 	for (int i = 0; i < sensor_count; i++)
 	{
-		String endpoint_name = format_endpoint_name(dto_props[i].name);
+		const String endpoint_name = format_endpoint_name(dto_props[i].name);
 		String slave_address = String(dto_props[i].slave_address);
 		String prop_index = String(dto_props[i].prop_index);
-		if (addCustomEndpoint(deviceInfo_endPoints, endpoint_name, slave_address.c_str(), mqtt_device_name))
+		const String slave_endpoint = read_custom_endpoint(slave_address.c_str(), mqtt_device_name);
+		if (slave_endpoint != "")
 		{
+			deviceInfo_endPoints[PREFIX_CUSTOM_CARD + endpoint_name] = RawJson(slave_endpoint);
 			dto_props[i].has_custom_card = true;
 		}
-		bool has_labels, has_icons, has_values, is_toggle, is_donut, has_total, has_units;
+		bool has_labels = false, has_icons = false, has_values = false, is_toggle = false, is_donut = false, has_total = false, has_units = false;
+		//ToDo: JsonObject buffer may got out of scope
 		JsonObject& slave_json_obj = _config.get_slave_meta_json_object(dto_props[i].slave_address);
 		JsonObject& prop_json_obj = slave_json_obj[prop_index];
 		String card_type_short = prop_json_obj["card_type"];
@@ -145,10 +151,10 @@ String VizJson::build_device_info(PropertyDto *dto_props, int sensor_count, char
 			series_endpoint_values["update"] = "";
 		}
 	}
-	deviceInfo["status"] = "good";
-	deviceInfo["name"] = mqtt_device_name;
-	deviceInfo["description"] = mqtt_device_description;
-	deviceInfo["color"] = viz_color;
+	device_info["status"] = "good";
+	device_info["name"] = mqtt_device_name;
+	device_info["description"] = mqtt_device_description;
+	device_info["color"] = viz_color;
 	String output;
 	//root.printTo(Serial);
 	//  Serial.println();
@@ -156,18 +162,14 @@ String VizJson::build_device_info(PropertyDto *dto_props, int sensor_count, char
 	return output;
 }
 
-bool VizJson::addCustomEndpoint(JsonObject& deviceInfo_endPoints, String endpoint_name, const char *file_id, char *mqtt_device_name)
+String VizJson::read_custom_endpoint(const char *file_id, char *mqtt_device_name)
 {
 	String json = _config.get_user_card(file_id);
-	if (json == "") return false;
-	DynamicJsonBuffer jsonBuffer;
-	JsonObject& root = jsonBuffer.parseObject(json);
-	String epJson = get_json_value(root, 0);
-	epJson.replace("<mqtt_device_name>", String(mqtt_device_name));
-	epJson.replace("<wifi_ssid>", WiFi.SSID());
-	epJson.replace("<local_ip>", WiFi.localIP().toString());
-	deviceInfo_endPoints["CC_" + endpoint_name] = RawJson(epJson);
-	return true;
+	if (json == "") return "";
+	json.replace("<mqtt_device_name>", String(mqtt_device_name));
+	json.replace("<wifi_ssid>", WiFi.SSID());
+	json.replace("<local_ip>", WiFi.localIP().toString());
+	return json;
 }
 
 //not for the purist :)

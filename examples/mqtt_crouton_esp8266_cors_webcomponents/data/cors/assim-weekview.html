@@ -1,0 +1,314 @@
+<!-- THE FOLLOWING IS AN EXAMPLE OF EXTERNAL REFERENCES - HOST ON THE SERVER THAT AssimilateCrouton IS HOSTED ON -->
+
+<link rel="import" href="http://localhost:10001/static/common/bower/polymer/polymer.html" />
+<link rel="import" href="http://localhost:10001/html/crouton-card.html" />
+<link rel="import" href="http://localhost:10001/static/common/bower/paper-listbox/paper-listbox.html" />
+<link rel="import" href="http://localhost:10001/static/common/bower/paper-item/paper-item.html" />
+<dom-module id="assim-weekview">
+    <template>
+        <link rel="stylesheet" href="assim-weekview.css" />
+        <crouton-card color="{{endPointJson.color}}">
+            <div class="dragger">
+                <div class="listbox_header">MON</div>
+                <div class="listbox_header">TUE</div>
+                <div class="listbox_header">WED</div>
+                <div class="listbox_header">THU</div>
+                <div class="listbox_header">FRI</div>
+                <div class="listbox_header">SAT</div>
+                <div class="listbox_header">SUN</div>
+                <template is="dom-if" if="{{info}}">
+                    <i class="info_button fa fa-info-circle" title="info" on-click="_makeToast"></i>
+                </template>
+                <i class="close_button fa fa-window-close" title="hide" on-click="_hideCard"></i>
+            </div>
+            <div class="expand">
+                <!--ToDo: create wwebcomponents for reused controls - id, selected-values, on-selected-values-changed, items -->
+                <div class="listbox_container">
+                    <paper-listbox slot="dropdown-content" id="timesMon" multi selected-values="{{selectedValuesMon}}" on-selected-values-changed="checkIfCurrentUpdateDevice">
+                        <template is="dom-repeat" items="[[itemsDay]]">
+                            <paper-item>[[item.start]] - [[item.end]]</paper-item>
+                        </template>
+                    </paper-listbox>
+                </div>
+                <div class="listbox_container">
+                    <paper-listbox slot="dropdown-content" id="timesTue" multi selected-values="{{selectedValuesTue}}" on-selected-values-changed="checkIfCurrentUpdateDevice">
+                        <template is="dom-repeat" items="[[itemsDay]]">
+                            <paper-item>[[item.start]] - [[item.end]]</paper-item>
+                        </template>
+                    </paper-listbox>
+                </div>
+                <div class="listbox_container">
+                    <paper-listbox slot="dropdown-content" id="timesWed" multi selected-values="{{selectedValuesWed}}" on-selected-values-changed="checkIfCurrentUpdateDevice">
+                        <template is="dom-repeat" items="[[itemsDay]]">
+                            <paper-item>[[item.start]] - [[item.end]]</paper-item>
+                        </template>
+                    </paper-listbox>
+                </div>
+                <div class="listbox_container">
+                    <paper-listbox slot="dropdown-content" id="timesThu" multi selected-values="{{selectedValuesThu}}" on-selected-values-changed="checkIfCurrentUpdateDevice">
+                        <template is="dom-repeat" items="[[itemsDay]]">
+                            <paper-item>[[item.start]] - [[item.end]]</paper-item>
+                        </template>
+                    </paper-listbox>
+                </div>
+                <div class="listbox_container">
+                    <paper-listbox slot="dropdown-content" id="timesFri" multi selected-values="{{selectedValuesFri}}" on-selected-values-changed="checkIfCurrentUpdateDevice">
+                        <template is="dom-repeat" items="[[itemsDay]]">
+                            <paper-item>[[item.start]] - [[item.end]]</paper-item>
+                        </template>
+                    </paper-listbox>
+                </div>
+                <div class="listbox_container">
+                    <paper-listbox slot="dropdown-content" id="timesSat" multi selected-values="{{selectedValuesSat}}" on-selected-values-changed="checkIfCurrentUpdateDevice">
+                        <template is="dom-repeat" items="[[itemsDay]]">
+                            <paper-item>[[item.start]] - [[item.end]]</paper-item>
+                        </template>
+                    </paper-listbox>
+                </div>
+                <div class="listbox_container">
+                    <paper-listbox slot="dropdown-content" id="timesSun" multi selected-values="{{selectedValuesSun}}" on-selected-values-changed="checkIfCurrentUpdateDevice">
+                        <template is="dom-repeat" items="[[itemsDay]]">
+                            <paper-item>[[item.start]] - [[item.end]]</paper-item>
+                        </template>
+                    </paper-listbox>
+                </div>
+            </div>
+            <div class="titleDisplay">{{endPointJson.title}}</div>
+        </crouton-card>
+    </template>
+    <script>
+        (function () {
+            Polymer({
+                is: "assim-weekview",
+                properties: {
+                    endPointJson: {
+                        type: Object,
+                        notify: true
+                    },
+                    deviceName: {
+                        type: String,
+                        notify: true
+                    },
+                    endPointName: {
+                        type: String
+                    },
+                    itemsDay: {
+                        notify: true,
+                        type: Array
+                    },
+                    // names of arrays so they can be indexed by getDay()
+                    weekdayValues: {
+                        type: Array,
+                        value: [
+                            "selectedValuesSun",
+                            "selectedValuesMon",
+                            "selectedValuesTue",
+                            "selectedValuesWed",
+                            "selectedValuesThu",
+                            "selectedValuesFri",
+                            "selectedValuesSat"
+                        ]
+                    },
+                    // ids of listboxes so they can be indexed by getDay()
+                    weekdayListboxes: {
+                        type: Array,
+                        value: [
+                            "timesSun",
+                            "timesMon",
+                            "timesTue",
+                            "timesWed",
+                            "timesThu",
+                            "timesFri",
+                            "timesSat"
+                        ]
+                    },
+                    // selected value arrays used on listboxes
+                    selectedValuesMon: { notify: true, type: Array, value: () => [] },
+                    selectedValuesTue: { notify: true, type: Array, value: () => [] },
+                    selectedValuesWed: { notify: true, type: Array, value: () => [] },
+                    selectedValuesThu: { notify: true, type: Array, value: () => [] },
+                    selectedValuesFri: { notify: true, type: Array, value: () => [] },
+                    selectedValuesSat: { notify: true, type: Array, value: () => [] },
+                    selectedValuesSun: { notify: true, type: Array, value: () => [] },
+                    // used for building listbox arrays
+                    intervalHourIncrement: Number,
+                    intervalHourDivisions: Number,
+                    info: String,
+                    isInternalUpdate: Boolean
+                },
+                observers: [
+                    'newValues(endPointJson.values.*)'
+                ],
+                ready: function () {
+                    this.getSelectionsFromStorage();
+                },
+                attached: function () {
+                    this.endPointName = this.endPointJson.endPointName;
+                    if (this.endPointJson.info) {
+                        this.info = this.endPointJson.info;
+                    }
+                    this.mqtt = document.getElementById("crouton-mqtt");
+                },
+                // MQTT values changed event
+                newValues: function (changeRecord) {//{"value": true}
+                    if (!this.itemsDay) {
+                        this.setIntervals();
+                        this.buildTimeArray('itemsDay');
+                        this.startWatcherLoop();
+                        return; // initial needs to bypass
+                    }
+                    var now = new Date();
+                    var nowDayIndex = now.getDay();
+                    var nowDeviceOn = this.endPointJson.values.value;
+                    var nowTimeIndex = this.getIndexForTime(now);
+                    var todaysSelectedStr = this.weekdayValues[nowDayIndex];
+                    var todaysSelectedTimes = this[todaysSelectedStr];
+                    var nowCardOn = todaysSelectedTimes.indexOf(nowTimeIndex) != -1;
+                    if (nowCardOn != nowDeviceOn) {
+                        var todaysListboxStr = this.weekdayListboxes[nowDayIndex];
+                        var todaysListbox = this.$[todaysListboxStr];
+                        this.isInternalUpdate = true;
+                        todaysListbox.selectIndex(nowTimeIndex);
+                    }
+                },
+                // get the selection arrays from storage
+                getSelectionsFromStorage: function () {
+                    var that = this;
+                    ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].forEach(function (day) {
+                        var dayKey = that.endPointJson.endPointName + "_" + day;
+                        var daySelectedArray = that.getSelectionFromStorage(dayKey);
+                        if (daySelectedArray) {
+                            var dayListbox = that.$["times" + day];
+                            daySelectedArray.forEach(function (index) {
+                                dayListbox.selectIndex(index);
+                            }, this);
+                        }
+                    });
+                },
+                // get index of item in list based on passed time
+                getIndexForTime: function (date) {
+                    var that = this;
+                    var foundIndex = -1;
+                    this.itemsDay.forEach((item, index) => {
+                        var startTime = that.setNewTodayTime(item.start);
+                        var endTime = that.setNewTodayTime(item.end);
+                        if (startTime <= date && date <= endTime) {
+                            foundIndex = index;
+                            return;
+                        }
+                    });
+                    return foundIndex;
+                },
+                // derive values used in building arrays from interval_mins in deviceInfo
+                setIntervals: function () {
+                    var intervalMins = this.endPointJson.interval_mins;
+                    var hoursDecimal = intervalMins / 60;
+                    this.intervalHourIncrement = hoursDecimal < 1 ? 1 : Math.floor(hoursDecimal);
+                    if (hoursDecimal >= 1) {
+                        this.intervalHourDivisions = 1;
+                    } else {
+                        var intervalMod = intervalMins % 60;
+                        var divs5min = intervalMod / 5;
+                        this.intervalHourDivisions = 12 / divs5min;
+                    }
+                },
+                // build the listbox items array based on the values derived from interval_mins in deviceInfo
+                buildTimeArray: function (timeArrayString) {
+                    this[timeArrayString] = [];
+                    var mins = 60 / this.intervalHourDivisions;
+                    for (var i = 0; i < 24; i = i + this.intervalHourIncrement) {
+                        for (var j = 0; j < this.intervalHourDivisions; j++) {
+                            var startVal = this.pad(i, 2) + ":" + this.pad((j * mins), 2);
+                            var endVal = "";
+                            var endMins = ((j + 1) * mins);
+                            if (endMins == 60) {
+                                endVal = this.pad(i + this.intervalHourIncrement, 2) + ":00";
+                            } else {
+                                endVal = this.pad(i, 2) + ":" + this.pad(endMins, 2);
+                            }
+                            var item = { start: startVal, end: endVal };
+                            this.push(timeArrayString, item);
+                        }
+                    }
+                },
+                // starts the inteval timer and sends to MQTT status of current time setting every minute
+                startWatcherLoop: function () { //
+                    var that = this;
+                    setInterval(function () {
+                        var todaysSelectedStr = that.weekdayValues[new Date().getDay()];
+                        var todaysSelectedTimes = that[todaysSelectedStr];
+                        var nowTime = new Date();
+                        var nowIndex = that.getIndexForTime(nowTime);
+                        var isUiOn = todaysSelectedTimes.indexOf(nowIndex) > -1;
+                        that.mqtt.publishMessage("/inbox/" + that.deviceName + "/" + that.endPointName, JSON.stringify({ "value": isUiOn }));
+                    }, 60000); // every minute 60000
+                },
+                // uses todays date but updates time segments from the HH:mm format used
+                setNewTodayTime: function (timeStr) {
+                    var newParts = timeStr.split(":");
+                    var newHrs = parseInt(newParts[0]);
+                    var newMins = parseInt(newParts[1]);
+                    var newTime = new Date();
+                    newTime.setHours(newHrs);
+                    newTime.setMinutes(newMins);
+                    return newTime;
+                },
+                // leading zeros fo times
+                pad: function (n, width, z) {
+                    z = z || '0';
+                    n = n + '';
+                    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+                },
+                // change event that checks if the timeslot changed is now, if so send to MQTT; persist to storage
+                checkIfCurrentUpdateDevice: function (event) {
+                    if (!event.detail.value.indexSplices) return;
+                    var day = event.currentTarget.id.substr(5, 3);
+                    var daySelectedStr = "selectedValues" + day;
+                    var daySelectedArray = this[daySelectedStr];
+                    var dayKey = this.endPointName + "_" + day;
+                    this.setSelectionToStorage(dayKey, daySelectedArray);
+                    if (this.isInternalUpdate) {
+                        this.isInternalUpdate = false;
+                        return;
+                    }
+                    //ToDo: this is not specific for the day, tomorraw at this time will trigger device
+                    var isUiOn = event.detail.value.indexSplices["0"].addedCount > 0;
+                    var currentItemIdx = -1;
+                    if (isUiOn) {
+                        currentItemIdx = event.detail.value.indexSplices["0"].object["0"];
+                    } else {
+                        currentItemIdx = event.detail.value.indexSplices["0"].removed["0"];
+                    }
+                    var nowTime = new Date();
+                    var nowIndex = this.getIndexForTime(nowTime);
+                    if (currentItemIdx == nowIndex) {
+                        this.mqtt.publishMessage("/inbox/" + this.deviceName + "/" + this.endPointName, JSON.stringify({ "value": isUiOn }));
+                    }
+                },
+                // send notification to device card to hide this card
+                _hideCard: function (e, detail) {
+                    this.fire('iron-signal', { name: 'hidecardsignal', data: this.id });
+                },
+                // send notification to crouton-frame.html to show toast
+                _makeToast: function () {
+                    this.fire('makeToast', {
+                        message: this.info,
+                        duration: 3000,
+                        status: "info-circle"
+                    });
+                },
+                // set the day selections in storage
+                setSelectionToStorage: function (dayKey, array) {
+                    var key = this.deviceName + "_" + dayKey;
+                    localStorage.setItem(key, JSON.stringify(array));
+                },
+                // get the day selections from storage
+                getSelectionFromStorage: function (dayKey) {
+                    var key = this.deviceName + "_" + dayKey;
+                    return JSON.parse(localStorage.getItem(key));
+                }
+
+            });
+        }());
+    </script>
+</dom-module>

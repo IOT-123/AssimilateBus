@@ -20,8 +20,10 @@ public:
 	String format_update_json(char *card_type, char *label, char *value);
 	String format_endpoint_name(char name[16]);
 	const String POSTFIX_SERIES = "_series";
+	const String PREFIX_CUSTOM_CARD = "CC_";
 private:
-	bool addCustomEndpoint(JsonObject& deviceInfo_endPoints, String endpoint_name, const char *file_id, char *mqtt_device_name);
+//	bool addCustomEndpoint(JsonObject& deviceInfo_endPoints, String endpoint_name, const char *file_id, char *mqtt_device_name);
+	String read_custom_endpoint(const char *file_id, char *mqtt_device_name);
 	char* get_viz_card_type(char *str);
 	const char* bool_str_or_default(const char str[16]);
 	bool is_numeric(char *str);

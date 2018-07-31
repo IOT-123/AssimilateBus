@@ -1,8 +1,8 @@
 {
-  "endpoint": {
-    "card-type": "assim-weekview",
-    "card-type-test": "<local_ip>/cors/assim-weekview.html",
-    "title": "Planter Lights",
-    "interval_mins": 15
-  }
+  "card-type": "assim-weekview",
+  "path": "http://<local_ip>/cors",
+  "title": "Planter Lights",
+  "info": "Set the lights on or off in 15 minute time slots",
+  "interval_mins": 15,
+  "values": { "value": "" }
 }

@@ -1,3 +1,15 @@
+/*
+ *
+ *THE BUSINESS RULES FOR YOUR DEVICE ARE EXPECTED TO BE CONTROLLED VIA MQTT - NOT HARD BAKED INTO THIS FIRMWARE
+ *
+ * Other than setup and loop in this file
+ * the important moving parts are
+ * on_bus_received and on_bus_complete in static_i2c_callbacks.ino
+ * and
+ * mqtt_publish and mqtt_callback in static_mqtt.ino
+ *
+ */
+
 #include "types.h"
 #include "VizJson.h"
 #include "assimilate_bus.h"
@@ -8,14 +20,13 @@
 #include <TimeLib.h>
 #include <WiFiUdp.h>
 #include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
 #include <FS.h>
 #include <neotimer.h>
 //---------------------------------MEMORY DECLARATIONS
 //-------------------------------------------------- defines
-#define DBG_OUTPUT_FLAG 2 //0,1,2 MINIMUMUM,RELEASE,FULL
-#define _mqtt_pub_topic    "outbox"  
-#define _mqtt_sub_topic   "inbox" 
+#define DBG_OUTPUT_FLAG		2			//0,1,2 MINIMUMUM,RELEASE,FULL
+#define _mqtt_pub_topic		"outbox"	// CROUTON CONVENTIONS
+#define _mqtt_sub_topic		"inbox" 
 //-------------------------------------------------- class objects
 Debug _debug(DBG_OUTPUT_FLAG);
 AssimilateBus _assimilate_bus;
@@ -25,7 +36,7 @@ WiFiClient _esp_client;
 PubSubClient _client(_esp_client);
 WiFiUDP Udp;
 ESP8266WebServer _server(80);
-Neotimer _timer_sensor = Neotimer(5000);
+Neotimer _timer_property_request = Neotimer(5000);
 //-------------------------------------------------- data structs / variable
 RuntimeDeviceData _runtime_device_data;
 PropertyDto _dto_props[50]; // max 10 slaves x max 5 properties
@@ -70,7 +81,8 @@ bool check_fatal_error();
 bool get_json_card_type(byte slave_address, byte prop_index, char *card_type);
 bool get_struct_card_type(byte slave_address, byte prop_index, char *card_type);
 bool get_json_is_series(byte slave_address, byte prop_index);
-void str_replace(char *src, char *oldchars, char *newchars);
+void str_replace(char *src, const char *oldchars, char *newchars);
+byte get_prop_dto_idx(byte slave_address, byte prop_index);
 
 //---------------------------------MAIN
 
@@ -81,7 +93,8 @@ void setup(){
 	delay(5000);
 	if (DBG_OUTPUT_FLAG == 2)DBG_OUTPUT_PORT.setDebugOutput(true);
 	_debug.out_fla(F("setup"), true, 2);
-	if (SPIFFS.begin()){ // get required config
+	// get required config
+	if (SPIFFS.begin()){ 
 		_debug.out_str(spiffs_file_list_build("/"), true, 2);
 		if (!_config_data.get_device_data(device_data, _runtime_device_data)){
 			report_deserialize_error();
@@ -91,23 +104,25 @@ void setup(){
 		report_spiffs_error();
 		return;
 	}
-	_timer_sensor.set(device_data.sensor_interval);
+	// use timer value set in device.json
+	_timer_property_request.set(device_data.sensor_interval);
 	mqtt_init(device_data.wifi_ssid, device_data.wifi_key, device_data.mqtt_broker, device_data.mqtt_port);
 	time_services_init(device_data.ntp_server_name, device_data.time_zone);
 	server_init();
+	// kick off the metadata collection
 	_assimilate_bus.get_metadata();
 	_assimilate_bus.print_metadata_details();
-	// kick off the metadata collection - needs sensor property (names) to complete
 	mqtt_ensure_connect(); 
+	// needs sensor property (names) to complete metadata collection
 	_assimilate_bus.get_properties(on_bus_received, on_bus_complete);
-	_timer_sensor.reset(); // can ellapse noticable time till this point
+	_timer_property_request.reset(); // can ellapse noticable time till this point so start it again
 }
 
 void loop(){
 	if (!check_fatal_error()) return;
 	mqtt_loop();
 	_server.handleClient();
-	if(_timer_sensor.repeat()){
+	if(_timer_property_request.repeat()){
 		_assimilate_bus.get_properties(on_bus_received, on_bus_complete);
 	}
 }

@@ -41,10 +41,12 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 	char *device = strtok(NULL, "/");
 	char *property = strtok(NULL, "/");
 	// if propertry is from custom editor, route to root property
-	if ((strncmp("CC_", property, 3) == 0))
+	if ((strncmp(_viz_json.PREFIX_CUSTOM_CARD.c_str(), property, 3) == 0))
 	{
-		str_replace(property, "CC_", "");
+		str_replace(property, _viz_json.PREFIX_CUSTOM_CARD.c_str(), "");
 	}
+	_debug.out_str("------------------------------", false, 2);
+	_debug.out_char(property, true, 2);
 	byte address = -1;
 	char card_type[16];
 	for (byte i = 0; i < sizeof(_dto_props) / sizeof(PropertyDto); i++) {
@@ -55,6 +57,8 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 			break;
 		}
 	}
+	_debug.out_str("------------------------------", false, 2);
+	_debug.out_char(card_type, true, 2);
 	if (strcmp("toggle", card_type) == 0) {
 		int8_t topic_index = mqtt_get_topic_index(property);
 		if (topic_index == -1) {
@@ -131,7 +135,8 @@ void mqtt_create_subscriptions() {
 				mqtt_subscribe(_mqtt_sub_topic, _runtime_device_data.mqtt_device_name, const_cast<char*>(endpoint_name.c_str()));
 				if (_dto_props[i].has_custom_card)
 				{
-					endpoint_name = "CC_" + endpoint_name;
+					_debug.out_fla(F("mqtt_create_subscriptions-------------------------------------------has_custom_card"), true, 2);
+					endpoint_name = _viz_json.PREFIX_CUSTOM_CARD + endpoint_name;
 					mqtt_subscribe(_mqtt_sub_topic, _runtime_device_data.mqtt_device_name, const_cast<char*>(endpoint_name.c_str()));
 				}
 			}
@@ -146,9 +151,11 @@ bool mqtt_ensure_connect() {
 	while (!_client.connected()) {
 		Serial.print("Attempting MQTT connection...");
 		bool connect_success;
-		uint32_t chip_id = ESP.getChipId();
+		uint32_t random_id = random(999, 9999);
+//		uint32_t chip_id = ESP.getChipId();
 		char client_id[25];
-		snprintf(client_id, 25, "ESP8266-%08X", chip_id);
+		snprintf(client_id, 25, "ASSIM-NODE-%08X", random_id);
+		Serial.println(client_id);
 		if ((strcmp(_runtime_device_data.mqtt_username, "") == 0))// if not credentials
 		{
 			connect_success = _client.connect(client_id, lwt_topic, 0, false, "anything for last will and testament");
@@ -187,7 +194,6 @@ void mqtt_init(const char* wifi_ssid, const char* wifi_password, const char* mqt
 
 void mqtt_publish(char *root_topic, char *deviceName, char *endpoint, const char *payload) {
 	Serial.print(F("[MQTT SEND] "));
-	Serial.println(payload);
 	if (strcmp(payload, "") == 0) {
 		return;
 	}
@@ -196,5 +202,7 @@ void mqtt_publish(char *root_topic, char *deviceName, char *endpoint, const char
 	}
 	char topic[127];
 	sprintf(topic, "/%s/%s/%s", root_topic, deviceName, endpoint);
+	Serial.println(topic);
+	Serial.println(payload);
 	_client.publish(topic, payload);
 } // mqtt_publish()

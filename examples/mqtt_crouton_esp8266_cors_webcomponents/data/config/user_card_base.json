@@ -1,8 +1,18 @@
 {
-  "endpoint": {
-    "device_name": "<mqtt_device_name>",
-    "card-type": "assim-device",
-    "ssid": "<wifi_ssid>",
-    "ip_addr": "<local_ip>"
-  }
+  "device_name": "<mqtt_device_name>",
+  "card-type": "assim-device",
+  "ssid": "<wifi_ssid>",
+  "ip_addr": "<local_ip>",
+  "endpoints": [
+    {
+      "title": "Grow Lights",
+      "card-type": "crouton-simple-toggle",
+      "endpoint": "switch"
+    },
+    {
+      "title": "Planter Lights",
+      "card-type": "crouton-assim-weekview",
+      "endpoint": "CC_switch"
+    }
+  ]
 }

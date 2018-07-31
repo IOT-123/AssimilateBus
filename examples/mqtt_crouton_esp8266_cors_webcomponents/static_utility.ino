@@ -55,6 +55,16 @@ bool get_struct_card_type(byte slave_address, byte prop_index, char *card_type){
   return false;
 }
 
+byte get_prop_dto_idx(byte slave_address, byte prop_index)
+{
+	for (byte i = 0; i < sizeof(_dto_props) / sizeof(PropertyDto); i++) {
+		if (_dto_props[i].slave_address == slave_address && _dto_props[i].prop_index == prop_index) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 bool get_json_is_series(byte slave_address, byte prop_index){
   JsonObject& slave_json_obj = _config_data.get_slave_meta_json_object(slave_address);
   if (!slave_json_obj[String(prop_index)]){
@@ -63,7 +73,7 @@ bool get_json_is_series(byte slave_address, byte prop_index){
   return slave_json_obj[String(prop_index)]["is_series"];
 }
 
-void str_replace(char *src, char *oldchars, char *newchars) { // utility string function
+void str_replace(char *src, const char *oldchars, char *newchars) { // utility string function
 	char *p = strstr(src, oldchars);
 	char buf[16];
 	do {
