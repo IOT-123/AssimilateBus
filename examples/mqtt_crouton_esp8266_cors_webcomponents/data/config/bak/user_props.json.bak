@@ -1,0 +1,18 @@
+{
+  "9": {
+    "0": "Attic Light Levels"
+  },
+  "10": {
+    "0": "Relative Humidity",
+    "1": "Attic Temperature"
+  },
+  "12": {
+    "2": "Background Noise"
+  },
+  "13": {
+    "0": "Front Porch Lights"
+  },
+  "16": {
+    "0": "MQTT Connection"
+  }
+}

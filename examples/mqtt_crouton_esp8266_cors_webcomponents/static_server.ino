@@ -69,7 +69,6 @@ bool server_file_read(String path){
 	_server.sendHeader("Access-Control-Allow-Origin", "*");
 	_server.sendHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
 	_server.sendHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");//, Content-Range, Content-Disposition, Content-Description
-
     _server.streamFile(file, contentType);
     file.close();
     return true;

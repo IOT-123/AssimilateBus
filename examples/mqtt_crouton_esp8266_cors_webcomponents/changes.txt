@@ -1,2 +1,5 @@
-Add CORS friendly Headers
-When CMD an ACTOR get Properties to MQTT immediately just for that slave
+A Crouton WebComponent assim-weekview in cors folder in SPIFFS
+user_card_<ADDRESS>.json
+and
+user_card_base.json
+adds customizable endpoints to the deviceInfo json with runtime variables being swapped first: <mqtt_device_name>, <wifi_ssid>, <local_ip>
