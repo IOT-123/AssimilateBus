@@ -22,6 +22,7 @@ https://github.com/IOT-123/AssimilateBus/tree/2dff4a266340362a9cb2c1491ef31ad288
 
 https://github.com/IOT-123/AssimilateBus/archive/2dff4a266340362a9cb2c1491ef31ad2884c5d95.zip
 
+
 IOT123 - ASSIMILATE SENSOR HUB: ICOS10 CROUTON CUSTOMIZATION WEBSERVER
 
 https://www.instructables.com/id/IOT123-ASSIMILATE-SENSOR-HUB-ICOS10-CUSTOMIZATION-
@@ -29,3 +30,13 @@ https://www.instructables.com/id/IOT123-ASSIMILATE-SENSOR-HUB-ICOS10-CUSTOMIZATI
 https://github.com/IOT-123/AssimilateBus/tree/618d8f9a289290e05b5106b725b504547e3f81c1
 
 https://github.com/IOT-123/AssimilateBus/archive/618d8f9a289290e05b5106b725b504547e3f81c1.zip
+
+
+IOT123 - ASSIMILATE SENSOR HUB: ICOS10 CORS WEBCOMPONENTS
+
+https://www.instructables.com/id/
+
+https://github.com/IOT-123/AssimilateBus/tree/e507eee184138b2869a866ec9d03de87a30d41c4
+
+https://github.com/IOT-123/AssimilateBus/archive/e507eee184138b2869a866ec9d03de87a30d41c4.zip
+
