@@ -1,10 +1,10 @@
-<link rel="import" href="../static/common/bower/paper-listbox/paper-listbox.html" onerror="corsLinkOnError(this.href)" />
-<link rel="import" href="../static/common/bower/polymer/polymer.html" onerror="corsLinkOnError(this.href)" />
-<link rel="import" href="../html/crouton-card.html"  onerror="corsLinkOnError(this.href)" />
-<link rel="import" href="../static/common/bower/paper-item/paper-item.html" onerror="corsLinkOnError(this.href)" />
+<link rel="import" href=".x./static/common/bower/paper-listbox/paper-listbox.html" onerror="corsLinkOnError(this.href)" />
+<link rel="import" href=".x./static/common/bower/polymer/polymer.html" onerror="corsLinkOnError(this.href)" />
+<link rel="import" href="crouton-card.htmxl" onerror="corsLinkOnError(this.href)" />
+<link rel="import" href=".x./static/common/bower/paper-item/paper-item.html" onerror="corsLinkOnError(this.href)" />
 <dom-module id="assim-weekview">
     <template>
-        <link rel="stylesheet" href="assim-weekview.css" />
+        <link rel="stylesheet" href="../css/assim-weekview.css" />
         <crouton-card color="{{endPointJson.color}}">
             <div class="dragger">
                 <div class="listbox_header">MON</div>
@@ -276,7 +276,11 @@
                         this.isInternalUpdate = false;
                         return;
                     }
-                    //ToDo: this is not specific for the day, tomorraw at this time will trigger device
+                    // check if selection was today
+                    var now = new Date();
+                    var nowDayIndex = now.getDay();
+                    var nowSelectedStr = this.weekdayValues[nowDayIndex];
+                    if (nowSelectedStr !== daySelectedStr) return; // not today
                     var isUiOn = event.detail.value.indexSplices["0"].addedCount > 0;
                     var currentItemIdx = -1;
                     if (isUiOn) {
