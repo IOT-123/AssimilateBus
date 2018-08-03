@@ -36,7 +36,7 @@ IOT123 - ASSIMILATE SENSOR HUB: ICOS10 CORS WEBCOMPONENTS
 
 https://www.instructables.com/id/IOT123-ASSIMILATE-SENSOR-HUB-ICOS10-CORS-WEBCOMPON/
 
-https://github.com/IOT-123/AssimilateBus/tree/8e353b5bb41cf74eff6bc53c915d11835cc03322
+https://github.com/IOT-123/AssimilateBus/tree/5deaaad200516be538d2335fe011d1198b48ff43
 
-https://github.com/IOT-123/AssimilateBus/archive/8e353b5bb41cf74eff6bc53c915d11835cc03322.zip
+https://github.com/IOT-123/AssimilateBus/archive/5deaaad200516be538d2335fe011d1198b48ff43.zip
 
